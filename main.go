@@ -38,17 +38,22 @@ func Connect(addr string) (conn *Connection, err error) {
 var address string
 var service string
 var metrics_file string
+var write_check bool
 
 func main() {
 	flag.StringVar(&address, "addr", "127.0.0.1:11211", "Memcached server address.")
 	flag.StringVar(&service, "service", "example", "Service tag variable (usefull to identify which memcached we measure).")
 	flag.StringVar(&metrics_file, "metrics", "./metrics_test.prom", "Define path where the metrics have to be saved")
+	flag.BoolVar(&write_check, "write", false, "Do a write and read test")
+
 	flag.Parse()
 
+	log.Println("Check memcached", service, "on address", address, "write_check:", write_check)
 	// connect to a Memcached server
 	mc, err := Connect(address)
 	if err != nil {
-		panic(err)
+		log.Fatal(err)
+		os.Exit(1)
 	}
 	defer mc.conn.Close()
 
@@ -90,4 +95,5 @@ func main() {
 		f.WriteString(fmt.Sprintf("memcached_stats{type=\"%s\", service=\"%s\"} %s\n", k, service, v))
 	}
 	// fmt.Printf("%#v\n", stats)
+	log.Println("Chech has been done")
 }
