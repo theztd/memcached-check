@@ -1,3 +1,3 @@
-module gitlab.com/theztd/memcache-check
+module gitlab.com/theztd/memcached-check
 
 go 1.17
