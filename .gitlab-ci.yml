@@ -20,7 +20,10 @@ build:
   script:
   - export BINARY_NAME=memcached-check
   - mkdir $CI_PROJECT_DIR/build/
-  - make all
+	- GOOS=linux GOARCH=amd64 go build -ldflags "-extldflags '-static'" -o $CI_PROJECT_DIR/build/${BINARY_NAME}-linux-amd64
+	- GOOS=linux GOARCH=arm64 go build -ldflags "-extldflags '-static'" -o $CI_PROJECT_DIR/build/${BINARY_NAME}-linux-arm64
+	- GOOS=darwin GOARCH=amd64 go build -ldflags "-extldflags '-static'" -o $CI_PROJECT_DIR/build/${BINARY_NAME}-darwin-amd64
+	- GOOS=darwin GOARCH=arm64 go build -ldflags "-extldflags '-static'" -o $CI_PROJECT_DIR/build/${BINARY_NAME}-darwin-arm64
   artifacts:
     paths:
       - build

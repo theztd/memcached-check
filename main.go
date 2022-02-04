@@ -57,9 +57,20 @@ func main() {
 	flag.Parse()
 
 	log.Println("Check memcached", service, "on address", address, "write_check:", write_check)
+
+	// Open file for writing metrics
+	f, err := os.Create(metrics_file)
+	if err != nil {
+		log.Panic(err)
+	}
+	defer f.Close()
+
 	// connect to a Memcached server
 	mc, err := Connect(address)
 	if err != nil {
+		// memcached_up 0
+		f.WriteString(fmt.Sprintf("memcached_up{service=\"%s\"} %d\n", service, 0))
+
 		log.Fatal(err)
 		os.Exit(1)
 	}
@@ -96,12 +107,8 @@ func main() {
 		}
 	}
 
-	// Open file for writing metrics
-	f, err := os.Create(metrics_file)
-	if err != nil {
-		log.Panic(err)
-	}
-	defer f.Close()
+	// memcached_up
+	f.WriteString(fmt.Sprintf("memcached_up{service=\"%s\"} %d\n", service, 1))
 
 	for k, v := range stats {
 		//fmt.Printf("memcached_stats{type=\"%s\", service=\"%s\"} %s\n", k, service, v)
