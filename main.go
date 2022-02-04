@@ -9,6 +9,7 @@ import (
 	"os"
 	"regexp"
 	"strings"
+	"time"
 )
 
 type Connection struct {
@@ -34,6 +35,13 @@ func Connect(addr string) (conn *Connection, err error) {
 	}, nil
 }
 
+func WriteCheck(data string) bool {
+	log.Println("Writing data to memcache", data)
+	time.Sleep(time.Duration(500))
+	log.Println("Reading data from memcache")
+	return true
+}
+
 // Connection address
 var address string
 var service string
@@ -56,6 +64,11 @@ func main() {
 		os.Exit(1)
 	}
 	defer mc.conn.Close()
+
+	//
+	if write_check {
+		WriteCheck(time.Now().Format(time.RFC3339))
+	}
 
 	// send "stats" command
 	mc.buf.WriteString("stats\r\n")
