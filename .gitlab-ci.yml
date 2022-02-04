@@ -44,7 +44,18 @@ public:
       done
 
 
-release_job:
+release_package:
+  stage: release
+  image: registry.gitlab.com/gitlab-org/release-cli:latest
+  script:
+    - export VERSION=$(grep VERSION version.go | cut -d\" -f2)
+    - echo "running release_job ${VERSION}"
+    - echo "${PACKAGE_REGISTRY_URL}/${VERSION}/${BINARY_NAME}-linux-amd64"
+    - release-cli create --name "Release ${VERSION}" --tag-name ${VERSION} --assets-link "{\"name\":\"${DARWIN_AMD64_BINARY}\",\"url\":\"${PACKAGE_REGISTRY_URL}/${VERSION}/${BINARY_NAME}-darwin-amd64\"}" --assets-link "{\"name\":\"${LINUX_AMD64_BINARY}\",\"url\":\"${PACKAGE_REGISTRY_URL}/${VERSION}/${BINARY_NAME}-linux-amd64\"}"
+
+
+
+release_tagged:
   stage: release
   image: registry.gitlab.com/gitlab-org/release-cli:latest
   rules:
@@ -52,11 +63,8 @@ release_job:
   script:
     - export VERSION=$(grep VERSION version.go | cut -d\" -f2)
     - echo "running release_job ${VERSION}"
-    - echo "${PACKAGE_REGISTRY_URL}/${BINARY_NAME}-linux-amd64"
-    - | 
-      release-cli create --name "Release $CI_COMMIT_TAG" --tag-name $CI_COMMIT_TAG \
-        --assets-link "{\"name\":\"${DARWIN_AMD64_BINARY}\",\"url\":\"${PACKAGE_REGISTRY_URL}/${VERSION}/${BINARY_NAME}-darwin-amd64\"}" \
-        --assets-link "{\"name\":\"${LINUX_AMD64_BINARY}\",\"url\":\"${PACKAGE_REGISTRY_URL}/${VERSION}/${BINARY_NAME}-linux-amd64\"}"
+    - echo "${PACKAGE_REGISTRY_URL}/${VERSION}/${BINARY_NAME}-linux-amd64"
+    - release-cli create --name "Release $CI_COMMIT_TAG" --tag-name $CI_COMMIT_TAG --assets-link "{\"name\":\"${DARWIN_AMD64_BINARY}\",\"url\":\"${PACKAGE_REGISTRY_URL}/${VERSION}/${BINARY_NAME}-darwin-amd64\"}" --assets-link "{\"name\":\"${LINUX_AMD64_BINARY}\",\"url\":\"${PACKAGE_REGISTRY_URL}/${VERSION}/${BINARY_NAME}-linux-amd64\"}"
   release:
     name: 'Release $CI_COMMIT_TAG'
     description: 'Created using the release-cli'  # $EXTRA_DESCRIPTION must be defined
