@@ -2,7 +2,7 @@ package main
 
 import (
 	"flag"
-	"log" // https://golang.org/pkg/net/
+	"log"
 	"time"
 )
 
@@ -26,7 +26,11 @@ func main() {
 
 	flag.Parse()
 
-	log.Println("Check memcached", service, "on address", address, "write_check", write_check, "...")
+	log.Println("Running memcached-check version:", VERSION)
+	log.Println(" service:", service)
+	log.Println(" address:", address)
+	log.Println(" write_check: ", write_check)
+	log.Println("")
 
 	if metrics_file != "" {
 		PrometheusMetrics(address, service, metrics_file)
